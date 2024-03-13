@@ -2,6 +2,7 @@ package com.example.demo.websocket;
 
 import com.example.demo.protobuf.Dy;
 import com.example.demo.util.GzipUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
@@ -13,6 +14,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 public class DyWebSocketClient extends WebSocketClient {
 
     public DyWebSocketClient(URI uri, Map<String, String> httpHeaders) throws URISyntaxException {
@@ -23,10 +25,10 @@ public class DyWebSocketClient extends WebSocketClient {
     @Override
     public void onOpen(ServerHandshake shake) {
         // TODO Auto-generated method stub
-        System.out.println("握手...");
+        log.info("握手....");
         for(Iterator<String> it=shake.iterateHttpFields();it.hasNext();) {
             String key = it.next();
-            System.out.println(key+":"+shake.getFieldValue(key));
+            log.info("{} : {}", key, shake.getFieldValue(key));
         }
         this.send();
     }
@@ -45,14 +47,14 @@ public class DyWebSocketClient extends WebSocketClient {
     @Override
     public void onClose(int paramInt, String paramString, boolean paramBoolean) {
         // TODO Auto-generated method stub
-        System.out.println("paramInt:"+paramInt+" paramString:"+paramString+" paramBoolean:"+paramBoolean);
-        System.out.println("关闭...");
+        log.info("paramInt: {}, paramString: {}, paramBoolean: {}", paramInt, paramString, paramBoolean);
+        log.info("关闭...");
     }
 
     @Override
     public void onError(Exception e) {
         // TODO Auto-generated method stub
-        System.out.println("异常"+e);
+        log.error("异常...", e);
 
     }
 
@@ -95,9 +97,10 @@ public class DyWebSocketClient extends WebSocketClient {
         try {
             Dy.ChatMessage chatMsg = Dy.ChatMessage.parseFrom(payload);
             // 打印聊天消息的发送者和内容
-            System.out.println("[弹幕] " + chatMsg.getUser().getNickName() + " : " + chatMsg.getContent());
+            log.info("[弹幕] {}: {}", chatMsg.getUser().getNickName(), chatMsg.getContent());
         } catch (Exception e) {
-            System.out.println("解析聊天消息异常");
+//            System.out.println("解析聊天消息异常");
+            log.error("解析聊天消息异常", e);
         }
     }
 
@@ -106,9 +109,9 @@ public class DyWebSocketClient extends WebSocketClient {
         try {
             Dy.GiftMessage giftMsg = Dy.GiftMessage.parseFrom(payload);
             // 打印礼物消息的发送者、礼物名称和连击数
-            System.out.println("[礼物] " + giftMsg.getUser().getNickName() + " : " + giftMsg.getGift().getName() + " * " + giftMsg.getComboCount());
+            log.info("[礼物] {}: {} * {}", giftMsg.getUser().getNickName(), giftMsg.getGift().getName(), giftMsg.getComboCount());
         } catch (Exception e) {
-            System.out.println("解析礼物消息异常");
+            log.error("解析礼物消息异常", e);
         }
     }
 
@@ -117,9 +120,9 @@ public class DyWebSocketClient extends WebSocketClient {
         try {
             Dy.LikeMessage likeMsg = Dy.LikeMessage.parseFrom(payload);
             // 打印点赞消息的发送者和点赞数
-            System.out.println("[点赞] " + likeMsg.getUser().getNickName() + " 点赞 * " + likeMsg.getCount());
+            log.info("[点赞] {} 点赞 * {}", likeMsg.getUser().getNickName(), likeMsg.getCount());
         } catch (Exception e) {
-            System.out.println("解析点赞消息异常");
+            log.error("解析点赞消息异常", e);
         }
     }
 
@@ -128,9 +131,9 @@ public class DyWebSocketClient extends WebSocketClient {
         try {
             Dy.MemberMessage enterMsg = Dy.MemberMessage.parseFrom(payload);
             // 打印进入直播间消息的发送者
-            System.out.println("[入场] " + enterMsg.getUser().getNickName() + " 进入直播间");
+            log.info("[入场] {} 进入直播间", enterMsg.getUser().getNickName());
         } catch (Exception e) {
-            System.out.println("解析进入直播间消息异常");
+            log.error("解析进入直播间消息异常", e);
         }
     }
 
@@ -142,7 +145,7 @@ public class DyWebSocketClient extends WebSocketClient {
                         .build();
                 byte[] data = pingPack.toByteArray();
                 this.send(data);
-                System.out.println("发送心跳");
+                log.info("发送心跳.....");
                 try {
                     Thread.sleep(10000);
                 } catch (InterruptedException e) {
@@ -159,7 +162,7 @@ public class DyWebSocketClient extends WebSocketClient {
                 .build();
         byte[] data = ackPack.toByteArray();
         this.send(ByteBuffer.wrap(data));
-        System.out.println("发送回应消息");
+        log.info("发送回应消息.....");
     }
 
 

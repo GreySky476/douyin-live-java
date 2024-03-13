@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import com.example.demo.websocket.DyWebSocketClient;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
 import java.net.URL;
@@ -12,19 +13,20 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class DouyinDanMuTest {
 
     private static Pattern pattern = Pattern.compile("roomId\\\\\":\\\\\"(\\d+)\\\\\"");
 
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
 
         openRoom("166393852641");
     }
 
-    public static void openRoom(String roomId) throws Exception{
+    public static void openRoom(String roomId) throws Exception {
 
-        String url = "https://live.douyin.com/"+roomId;
+        String url = "https://live.douyin.com/" + roomId;
 
         Map<String, String> headMap = new HashMap<>();
         headMap.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/14.0.835.163 Safari/535.1");
@@ -38,7 +40,7 @@ public class DouyinDanMuTest {
                 .execute();
 
         String ttwid = response.getCookieValue("ttwid");
-        headMap.put("cookie", "ttwid="+ttwid);
+        headMap.put("cookie", "ttwid=" + ttwid);
 
         //获取liveRoomId
         String body = response.body();
@@ -48,9 +50,9 @@ public class DouyinDanMuTest {
         if (matcher.find() && matcher.groupCount() >= 1) {
             // 获取匹配的子字符串
             liveRoomId = matcher.group(1);
-            System.out.println("Live room ID: " + liveRoomId);
+            log.info("Live room ID: {}", liveRoomId);
         } else {
-            System.out.println("No match found");
+            log.error("No match found");
             return;
         }
 
